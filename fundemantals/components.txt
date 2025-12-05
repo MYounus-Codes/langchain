@@ -1,0 +1,42 @@
+﻿There are six core components of LangChain. Below each component has a concise description, common examples, and how it connects with the others.
+
+1 - Models
+  - Description: Interfaces to language models (LLMs) and embedding models. LangChain provides adapters so you can swap providers.
+  - Examples: OpenAI GPT, Anthropic Claude, local models (Llama, Mistral), embedding models (OpenAI embeddings, sentence-transformers).
+  - Usage: Use LLMs to generate text, perform reasoning, or evaluate; use embedding models to create vector representations for retrieval.
+
+2 - Prompt
+  - Description: Templates and prompt engineering helpers that manage input formatting, few-shot examples, and dynamic variables.
+  - Examples: `PromptTemplate`, few-shot examples, system/user message templates for chat models.
+  - Usage: Build prompts consistently, inject context (from memory or retrieved docs), and control model behavior.
+
+3 - Chains
+  - Description: Compositions of modular steps (calls to LLMs, prompts, tools, or other transforms) that create workflows.
+  - Examples: `LLMChain`, `SequentialChain`, map/reduce-style chains, retrieval-based QA chains.
+  - Usage: Orchestrate multi-step tasks (e.g., retrieve -> synthesize -> summarize) and return structured outputs.
+
+4 - Memory
+  - Description: State persistence across interactions (conversation history, summaries, or long-term facts) to provide context.
+  - Examples: `ConversationBufferMemory`, `ConversationSummaryMemory`, custom persistent stores.
+  - Usage: Pass memory into chains or agents to maintain context across turns and improve multi-turn interactions.
+
+5 - Indexes
+  - Description: Structures and connectors for organizing documents for retrieval (vector stores, hybrid indexes, keyword indexes).
+  - Examples: FAISS, Milvus, Pinecone, Weaviate, Chroma; higher-level index patterns like RAG (retrieval-augmented generation).
+  - Usage: Index documents, perform similarity search with embeddings, and feed retrieved docs into prompts or chains for grounding.
+
+6 - Agents
+  - Description: Reasoning systems that decide which tools to call and in what order  they can use LLMs to pick actions.
+  - Examples: Tool-based agents, `ReAct` and `ZeroShotAgent` patterns, tools for web search, calculators, DB queries.
+  - Usage: Combine LLM reasoning with external tools (retrieval, APIs, code execution) for complex, stateful tasks.
+
+How they fit together
+  - Typical flow: Use an embedding model to index documents (`Indexes`), retrieve context for a query, format the prompt (`Prompt`), call an LLM (`Models`) within a `Chain` or `Agent`, and store relevant conversational state in `Memory`.
+
+Quick tips
+  - Start with a simple `LLMChain` + `PromptTemplate` for prototyping.
+  - Add a vector store and retrieval when your prompts need external knowledge.
+  - Use `Memory` for multi-turn apps and `Agents` when you need tool orchestration.
+
+Further reading / next steps
+  - Examples: build a RetrievalQA chain, add ConversationBufferMemory, then swap to an agent that can call a calculator tool.
