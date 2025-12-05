@@ -1,5 +1,4 @@
 ### Code and Quick Start Guide from langchain documentation.
-
 from langchain.chat_models import init_chat_model
 from langgraph.checkpoint.memory import InMemorySaver
 from dataclasses import dataclass
