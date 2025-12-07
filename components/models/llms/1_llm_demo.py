@@ -1,3 +1,5 @@
+## In today's days, LLMs are not using so much. But still, for demo purpose, we can use them.
+
 from langchain_openai import OpenAI
 from dotenv import load_dotenv
 
