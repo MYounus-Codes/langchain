@@ -10,4 +10,5 @@ dependencies = [
     "langchain[anthropic,google-genai,openai]>=1.1.2",
     "python-dotenv>=1.2.1",
     "sentence-transformers>=5.1.2",
+    "streamlit>=1.52.1",
 ]
