@@ -1,20 +1,10 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.prompts import PromptTemplate
-from dotenv import load_dotenv
+from langchain_core.prompts import PromptTemplate, load_prompt
 import streamlit as st
-import os
+from dotenv import load_dotenv
 load_dotenv()
 
-api_key = os.getenv("GOOGLE_API_KEY")
-
-model = ChatGoogleGenerativeAI(model="gemini-2.5-flash", api_key=api_key)
-# st.header("Chatbot App using prompts")
-# # Static prompt 
-# user_input = st.text_input("Ask me anything: ")
-# if user_input:
-#     response = model.invoke(user_input)
-#     st.write(response.content)
-
+model = ChatGoogleGenerativeAI(model="gemini-2.5-flash", api_key="AIzaSyAHYkOyn_1Z6ymUPTiwIE1uwvESyOXsXoQ")
 # Dynamic prompt
 
 st.header('Research Tool')
@@ -40,26 +30,7 @@ length_input = st.selectbox(
     ["Short (1-2 paragraphs)", "Medium (3-5 paragraphs)", "Long (detailed explanation)"]
 )
 
-template = PromptTemplate(
-    template="""
-Please summarize the research paper titled "{paper_input}" with the following specifications:
-
-Explanation Style: {style_input}
-Explanation Length: {length_input}
-
-1. Mathematical Details:
-   - Include relevant mathematical equations if present in the paper.
-   - Explain the mathematical concepts using simple, intuitive code snippets where applicable.
-
-2. Analogies:
-   - Use relatable analogies to simplify complex ideas.
-
-If certain information is not available in the paper, respond with: "Insufficient information available" instead of guessing.
-
-Ensure the summary is clear, accurate, and aligned with the provided style and length.
-    """,
-    input_variables=["paper_input", "style_input", "length_input"]
-)
+template = load_prompt("components/prompts/class_projects/template.json")
 
 # Fill the prompt with user inputs
 prompt = template.invoke({
