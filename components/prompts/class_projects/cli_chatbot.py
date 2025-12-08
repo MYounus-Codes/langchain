@@ -6,7 +6,7 @@ load_dotenv()
 model = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash",
     # api_key=os.getenv("GOOGLE_GENAI_API_KEY"),
-    api_key="AIzaSyDBoxmlD1e8NJ8aUPzKRd6INRQGzLRkdzs",
+    api_key="YOUR_API_KEY",
 )
 
 chat_history = []
