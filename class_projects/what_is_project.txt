@@ -1,0 +1,7 @@
+## Project Details
+
+- We will have 3-4 documents embedded 
+- User will give us input
+- We have to tell that to which document the user query is related
+
+mainly goal is to understand and use the Cosine Similarity
