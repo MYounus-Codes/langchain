@@ -4,7 +4,7 @@ import streamlit as st
 from dotenv import load_dotenv
 load_dotenv()
 
-model = ChatGoogleGenerativeAI(model="gemini-2.5-flash", api_key="AIzaSyAHYkOyn_1Z6ymUPTiwIE1uwvESyOXsXoQ")
+model = ChatGoogleGenerativeAI(model="gemini-2.5-flash", api_key="YOUR_API_KEY")
 # Dynamic prompt
 
 st.header('Research Tool')
