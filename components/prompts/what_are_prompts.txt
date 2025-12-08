@@ -1,0 +1,478 @@
+## PROMPTS IN LANGCHAIN - COMPREHENSIVE GUIDE
+
+================================================================================
+1. WHAT ARE PROMPTS?
+================================================================================
+
+A prompt is the input text you send to a language model to generate a response. It's 
+the primary interface for communicating with LLMs. Prompts can range from simple 
+questions to complex instructions that guide the model's behavior.
+
+Key characteristics of effective prompts:
+- Clarity: Clear and unambiguous instructions
+- Specificity: Detailed description of what you want
+- Context: Providing relevant background information
+- Format: Proper structure for the task at hand
+- Examples: Few-shot examples to demonstrate the desired behavior
+
+
+================================================================================
+2. STATIC PROMPTS vs DYNAMIC PROMPTS
+================================================================================
+
+2.1 STATIC PROMPTS
+------------------
+Definition: Fixed prompts that don't change and are hardcoded in your application.
+
+Characteristics:
+- Pre-written and unchanging
+- Same prompt used every time the code runs
+- No variable substitution
+- Simple to implement and understand
+- Limited flexibility
+
+Example:
+"""
+prompt = "What is the capital of France?"
+response = model.generate(prompt)
+"""
+
+Use Cases:
+- Simple, repetitive tasks
+- Classification tasks with fixed categories
+- Template-based responses
+- When you want consistency and control
+
+Advantages:
++ Simple to implement
++ Easy to test and debug
++ Consistent results
++ No need for dynamic variable management
+
+Disadvantages:
+- No flexibility for different inputs
+- Cannot personalize responses
+- Limited adaptability to context
+- Harder to scale to multiple use cases
+
+
+2.2 DYNAMIC PROMPTS
+-------------------
+Definition: Prompts that change based on input variables, context, or user data.
+
+Characteristics:
+- Variable content inserted at runtime
+- Adapts to different inputs
+- More flexible and powerful
+- Requires template management
+- Can be personalized and context-aware
+
+Example:
+"""
+template = "What is the capital of {country}?"
+prompt = template.format(country="France")
+response = model.generate(prompt)
+"""
+
+Use Cases:
+- User-specific questions
+- Processing multiple data points
+- Personalized interactions
+- Context-aware responses
+- Data processing pipelines
+
+Advantages:
++ Highly flexible and reusable
++ Can personalize responses
++ Easily scales to multiple inputs
++ Context-aware and adaptive
++ Better for production applications
+
+Disadvantages:
+- More complex to implement
+- Requires careful variable validation
+- Risk of prompt injection
+- Harder to debug variable issues
+
+
+================================================================================
+3. LANGCHAIN PROMPTING TECHNIQUES & TEMPLATES
+================================================================================
+
+3.1 PROMPT TEMPLATES (PromptTemplate)
+--------------------------------------
+The foundation of prompt engineering in LangChain.
+
+Basic Structure:
+from langchain_core.prompts import PromptTemplate
+
+# Simple template with one variable
+template = "Tell me a {adjective} joke about {subject}."
+prompt_template = PromptTemplate(
+    input_variables=["adjective", "subject"],
+    template=template
+)
+
+prompt = prompt_template.format(adjective="funny", subject="programming")
+
+
+3.2 CHAT PROMPT TEMPLATES (ChatPromptTemplate)
+------------------------------------------------
+Used specifically for chat models with system, human, and assistant messages.
+
+Structure:
+from langchain_core.prompts import ChatPromptTemplate
+
+template = ChatPromptTemplate.from_messages([
+    ("system", "You are a helpful Python expert."),
+    ("human", "Explain {concept} in simple terms."),
+])
+
+prompt = template.format_messages(concept="recursion")
+
+Components:
+- System message: Sets the assistant's behavior and context
+- Human message: User input/question
+- Assistant message: Model responses (for few-shot examples)
+
+
+3.3 FEW-SHOT PROMPTING
+-----------------------
+Providing examples to guide the model's behavior.
+
+Example:
+from langchain_core.prompts import FewShotPromptTemplate, PromptTemplate
+
+# Define examples
+examples = [
+    {"input": "happy", "output": "sad"},
+    {"input": "tall", "output": "short"},
+    {"input": "bright", "output": "dark"},
+]
+
+# Create example prompt template
+example_prompt = PromptTemplate(
+    input_variables=["input", "output"],
+    template="Input: {input}\nOutput: {output}"
+)
+
+# Create few-shot template
+prompt = FewShotPromptTemplate(
+    examples=examples,
+    example_prompt=example_prompt,
+    suffix="Input: {word}\nOutput:",
+    input_variables=["word"]
+)
+
+response = prompt.format(word="good")
+
+Benefits:
+- Improves output quality
+- Helps model understand pattern
+- Works better for complex tasks
+- Reduces need for fine-tuning
+
+
+3.4 CHAIN-OF-THOUGHT (COT) PROMPTING
+--------------------------------------
+Encouraging the model to reason step-by-step.
+
+Example:
+prompt_template = ChatPromptTemplate.from_messages([
+    ("system", """You are a helpful assistant. Solve problems by:
+    1. Breaking down the problem
+    2. Thinking through each step
+    3. Providing the final answer
+    """),
+    ("human", "{problem}"),
+])
+
+problem = "If a train travels 100km in 2 hours, what's its average speed?"
+
+Benefits:
+- Better reasoning for complex problems
+- More transparent thinking process
+- Improved accuracy on mathematical problems
+- Easier to debug model reasoning
+
+
+3.5 ROLE-BASED PROMPTING
+-------------------------
+Assigning a specific role to the model.
+
+Example:
+from langchain_core.prompts import ChatPromptTemplate
+
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are an expert software architect with 20 years of experience."),
+    ("human", "Design a microservices architecture for {application}."),
+])
+
+response = prompt.format_messages(application="e-commerce platform")
+
+Benefits:
+- Consistent behavior and tone
+- Leverages model's knowledge in specific domains
+- Better quality responses in specialized areas
+
+
+3.6 LANGCHAIN EXPRESSION LANGUAGE (LCEL) WITH PROMPTS
+-------------------------------------------------------
+Modern approach to building prompt chains.
+
+Example:
+from langchain_core.prompts import PromptTemplate
+from langchain_openai import ChatOpenAI
+
+template = "Translate {text} to {language}."
+prompt = PromptTemplate(template=template, input_variables=["text", "language"])
+model = ChatOpenAI()
+
+# Create a chain using LCEL (pipe operator |)
+chain = prompt | model
+
+result = chain.invoke({"text": "Hello", "language": "Spanish"})
+
+Benefits:
+- Composable and reusable chains
+- Clear data flow
+- Easy to combine multiple components
+
+
+3.7 PROMPT VALIDATION & ERROR HANDLING
+---------------------------------------
+Ensuring prompts work correctly before deployment.
+
+Example:
+from langchain_core.prompts import PromptTemplate
+
+try:
+    prompt = PromptTemplate(
+        input_variables=["name", "age"],
+        template="Hello {name}, you are {age} years old."
+    )
+    
+    # Validate all variables are provided
+    result = prompt.format(name="John", age=30)
+    
+except KeyError as e:
+    print(f"Missing variable: {e}")
+
+
+3.8 DYNAMIC PROMPT COMPOSITION
+-------------------------------
+Building prompts from multiple sources dynamically.
+
+Example:
+from langchain_core.prompts import PromptTemplate, PipelinePrompt
+
+# Create sub-prompts
+intro_prompt = PromptTemplate(
+    input_variables=["topic"],
+    template="You are an expert on {topic}."
+)
+
+question_prompt = PromptTemplate(
+    input_variables=["question"],
+    template="Answer this question: {question}"
+)
+
+# Combine into pipeline
+pipeline_prompt = PipelinePrompt(
+    final_prompt=PromptTemplate(
+        input_variables=["intro", "question"],
+        template="{intro}\n{question}"
+    ),
+    pipeline_prompts=[
+        ("intro", intro_prompt),
+        ("question", question_prompt),
+    ]
+)
+
+result = pipeline_prompt.format_prompt(
+    topic="Machine Learning",
+    question="What is supervised learning?"
+)
+
+
+3.9 OUTPUT PARSERS (Structured Outputs)
+----------------------------------------
+Converting model outputs into structured formats.
+
+Example:
+from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
+from langchain_core.prompts import PromptTemplate
+
+# JSON Output Parser
+json_parser = JsonOutputParser()
+
+prompt = PromptTemplate(
+    template="Extract structured data from: {text}\n{format_instructions}",
+    input_variables=["text"],
+    partial_variables={
+        "format_instructions": json_parser.get_format_instructions()
+    }
+)
+
+# String Output Parser (default)
+str_parser = StrOutputParser()
+
+Benefits:
+- Structured data extraction
+- Type safety
+- Easy integration with downstream processes
+
+
+3.10 PARTIAL PROMPTS (Pre-filling Variables)
+----------------------------------------------
+Pre-populating some template variables while leaving others for later.
+
+Example:
+from langchain_core.prompts import PromptTemplate
+
+prompt = PromptTemplate(
+    template="You are a {role}. Answer: {question}",
+    input_variables=["role", "question"]
+)
+
+# Create partial prompt with role pre-filled
+expert_prompt = prompt.partial(role="Python expert")
+
+# Now only need to provide question
+result = expert_prompt.format(question="Explain decorators")
+
+Benefits:
+- Reuse prompts with some variables fixed
+- Reduce parameter passing
+- Cleaner code organization
+
+
+3.11 JINJA2 TEMPLATING
+----------------------
+Advanced templating with conditional logic and loops.
+
+Example:
+from langchain.prompts import PromptTemplate
+
+template = """
+{% if include_history %}
+Previous conversation history:
+{% for message in history %}
+- {message}
+{% endfor %}
+{% endif %}
+
+Current question: {question}
+"""
+
+prompt = PromptTemplate(
+    template=template,
+    input_variables=["question", "include_history", "history"]
+)
+
+Benefits:
+- Complex conditional logic
+- Loops and iterations
+- More powerful than simple string formatting
+
+
+================================================================================
+4. PROMPT ENGINEERING BEST PRACTICES
+================================================================================
+
+4.1 CLARITY AND SPECIFICITY
+- Be explicit about what you want
+- Use clear language and avoid ambiguity
+- Specify format of expected output
+
+4.2 CONTEXT AND BACKGROUND
+- Provide necessary context
+- Include relevant examples
+- Set the right tone and role
+
+4.3 HANDLING EDGE CASES
+- Think about potential misunderstandings
+- Provide fallback instructions
+- Test with various inputs
+
+4.4 ITERATIVE IMPROVEMENT
+- Test prompts with different inputs
+- Measure effectiveness
+- Refine based on results
+
+4.5 SECURITY CONSIDERATIONS
+- Validate user inputs to prevent prompt injection
+- Sanitize variables before insertion
+- Be careful with untrusted data in prompts
+
+
+================================================================================
+5. COMPARISON TABLE: STATIC vs DYNAMIC PROMPTS
+================================================================================
+
+Feature                 | Static Prompts      | Dynamic Prompts
+------------------------+---------------------+---------------------
+Flexibility             | Low                 | High
+Reusability             | Limited             | Excellent
+Personalization         | None                | Full
+Complexity              | Low                 | Medium-High
+Maintenance             | Easy                | Moderate
+Scalability             | Poor                | Excellent
+Testing                 | Straightforward     | Requires parameter testing
+Production Readiness    | Limited use cases   | Ideal
+Variable Management     | None                | Required
+Performance            | Identical results   | Variable based on inputs
+
+
+================================================================================
+6. WHEN TO USE WHAT?
+================================================================================
+
+USE STATIC PROMPTS WHEN:
+- Task is simple and repetitive
+- No personalization needed
+- Building prototypes or demos
+- Testing model capabilities
+- You want maximum consistency
+
+USE DYNAMIC PROMPTS WHEN:
+- Building production applications
+- Need personalization or context
+- Processing multiple data items
+- Creating user-facing features
+- Integrating with multiple data sources
+
+
+================================================================================
+7. ADVANCED PATTERNS
+================================================================================
+
+7.1 PROMPT COMPOSITION
+Combining multiple prompts into a workflow.
+
+7.2 CONDITIONAL PROMPTING
+Using different prompts based on conditions.
+
+7.3 ADAPTIVE PROMPTING
+Adjusting prompts based on model behavior or user feedback.
+
+7.4 META-PROMPTING
+Using prompts to generate better prompts.
+
+
+================================================================================
+SUMMARY
+================================================================================
+
+Prompts are the fundamental interface with LLMs. Understanding static vs dynamic
+prompts and mastering LangChain's prompting techniques are essential for building
+effective AI applications.
+
+Key Takeaways:
+1. Static prompts are simple but inflexible
+2. Dynamic prompts are powerful and scalable
+3. LangChain provides multiple tools for prompt management
+4. Few-shot prompting improves output quality
+5. Always validate and test your prompts
+6. Choose the right technique for your use case
+
