@@ -1,0 +1,63 @@
+
+SYSTEM, HUMAN, AND AI MESSAGES IN LANGCHAIN
+============================================
+
+WHAT ARE THESE MESSAGE TYPES?
+- SystemMessage: Sets global behavior, tone, safety rules, and constraints for the model.
+- HumanMessage: Captures user inputs, instructions, or data the model must act on.
+- AIMessage: Represents the model's replies; used for conversation history and few-shot examples.
+
+WHY THE ORDER MATTERS
+1) SystemMessage comes first: anchors persona, policies, and style.
+2) History pairs (HumanMessage/AIMessage) provide context.
+3) Latest HumanMessage is the new query; the model returns a new AIMessage.
+Influence priority: System > recent history > older history.
+
+DIFFERENCES AT A GLANCE
+- Purpose: System = rules; Human = intent; AI = response.
+- Who writes it: System by developer; Human by end-user; AI by the model.
+- Persistence: System usually constant; Human/AI grow as history; truncate when long.
+- Content style: System is policy/style; Human is user’s ask/data; AI is model output.
+
+BEST PRACTICES
+- Keep SystemMessage concise and explicit (role, constraints, style, safety).
+- Do not mix policy into HumanMessage; keep it user-focused.
+- Sanitize HumanMessage content to mitigate prompt injection.
+- Store AIMessage outputs so you can replay conversation state.
+- Trim or summarize long histories to control tokens.
+- Use few-shot patterns as alternating Human/AI examples to teach the model.
+
+MINIMAL PYTHON SNIPPET
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
+
+messages = [
+	SystemMessage(
+		content=(
+			"You are a concise travel assistant. Answer with bullet points and avoid"
+			" unnecessary prose."
+		)
+	),
+	HumanMessage(content="Plan a 2-day trip to Tokyo with food highlights."),
+	AIMessage(content="- Day 1: Tsukiji, Asakusa, Ueno\n- Day 2: Shibuya, Shinjuku"),
+]
+
+# Pass `messages` to a chat model; the next AIMessage is the model’s reply.
+
+FEW-SHOT EXAMPLE PATTERN
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
+
+messages = [
+	SystemMessage(content="You write crisp, one-sentence summaries."),
+	HumanMessage(content="Summarize: LangChain helps build LLM apps."),
+	AIMessage(content="LangChain speeds LLM app development with composable tools."),
+	HumanMessage(content="Summarize: Embeddings enable semantic search."),
+	AIMessage(content="Embeddings turn text into vectors for meaning-based search."),
+	HumanMessage(content="Summarize: Retrieval-Augmented Generation improves accuracy."),
+]
+
+CHEAT SHEET
+- SYSTEM: Persona, rules, safety, formatting instructions.
+- HUMAN: User intent, questions, or data. Keep it clean and validated.
+- AI: Model replies; store as history. Use them as examples when few-shotting.
+- ORDER: System → history (Human/AI pairs) → latest Human.
+- TIPS: Keep system short, trim history, validate inputs, prefer bullet answers for clarity.
